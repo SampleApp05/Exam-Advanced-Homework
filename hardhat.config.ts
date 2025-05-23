@@ -1,6 +1,9 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
+import "./tasks/index.ts";
+import "./tasks/create-signature.ts";
+
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.28",
@@ -22,9 +25,10 @@ const config: HardhatUserConfig = {
   networks: {
     sepolia: {
       url: `${process.env.SEPOLIA_RPC_URL}`,
-      accounts: process.env.WALLET_PRIVATE_KEY
-        ? [`0x${process.env.WALLET_PRIVATE_KEY}`]
-        : [],
+      // accounts: [
+      //   `0x${process.env.PRIMARY_WALLET_PRIVATE_KEY}`,
+      //   `0x${process.env.SECONDARY_WALLET_PRIVATE_KEY}`,
+      // ].filter(Boolean),
     },
   },
   etherscan: {

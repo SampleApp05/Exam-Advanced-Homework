@@ -37,3 +37,6 @@ coverage/
 typechain-types/
 coverage.json
 coverage/
+
+# Scripts/Tasks
+output/
