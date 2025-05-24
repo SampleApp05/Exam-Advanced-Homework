@@ -33,7 +33,7 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
     address public benefactor;
     string public departmentName;
     string public version;
-    AggregatorV3Interface priceFeedContract;
+    AggregatorV3Interface public priceFeedContract;
 
     mapping(bytes32 => bool) public paidSalaries; // hashing msg.sender and salary period === unique ID
 
