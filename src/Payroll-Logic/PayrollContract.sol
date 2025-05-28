@@ -8,7 +8,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IPayrollContract} from "./IPayrollContract.sol";
 
 contract PayrollContract is EIP712Upgradeable, IPayrollContract {
-    event PayrollCreated(
+    event PayrollInitialized(
         address indexed benefactor,
         string departmentName,
         string version
@@ -76,7 +76,9 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
         address employee,
         uint256 amount,
         uint256 period,
-        bytes calldata signature
+        uint8 v,
+        bytes32 r,
+        bytes32 s
     ) internal view returns (bool) {
         bytes32 dataHash = keccak256(
             abi.encode(CLAIM_SALARY_TYPEHASH, employee, amount, period)
@@ -84,7 +86,7 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
 
         bytes32 digest = _hashTypedDataV4(dataHash);
 
-        address signer = ECDSA.recover(digest, signature);
+        address signer = ECDSA.recover(digest, v, r, s);
         return signer == benefactor;
     }
 
@@ -98,8 +100,6 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
 
         (bool success, ) = payable(target).call{value: amountToPay}("");
         require(success, SalaryTransferFailed());
-
-        emit SalaryClaimed(target, amountToPay);
     }
 
     // MARK: - Public
@@ -120,7 +120,9 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
     function claimSalary(
         uint256 amount,
         uint256 period,
-        bytes calldata signature
+        uint8 v,
+        bytes32 r,
+        bytes32 s
     ) public {
         require(period > 0, InvalidSalaryPeriod());
         require(
@@ -131,11 +133,13 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
         paidSalaries[_getPaystupID(msg.sender, period)] = true;
 
         require(
-            _verifyPaystupSignature(msg.sender, amount, period, signature),
+            _verifyPaystupSignature(msg.sender, amount, period, v, r, s),
             InvalidSignature()
         );
 
         _transferSalaryTo(msg.sender, amount);
+
+        emit SalaryClaimed(msg.sender, period);
     }
 
     // MARK: - External
@@ -152,6 +156,6 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
 
         __EIP712_init(departmentName, version);
 
-        emit PayrollCreated(benefactor, departmentName, version);
+        emit PayrollInitialized(benefactor, departmentName, version);
     }
 }

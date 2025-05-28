@@ -7,7 +7,7 @@ import {PayrollContract} from "../src/Payroll-Logic/PayrollContract.sol";
 
 contract PayrollProxyFactoryTest is Test {
     event ProxyCreated(address indexed proxy);
-    event PayrollCreated(
+    event PayrollInitialized(
         address indexed benefactor,
         string departmentName,
         string version
@@ -42,7 +42,7 @@ contract PayrollProxyFactoryTest is Test {
 
     function testCreateProxy() public {
         vm.expectEmit(true, true, true, true);
-        emit PayrollCreated(benefactor, departmentName, version);
+        emit PayrollInitialized(benefactor, departmentName, version);
 
         vm.expectEmit(false, false, false, true);
         emit ProxyCreated(address(0));
