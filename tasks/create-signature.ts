@@ -11,7 +11,7 @@ task("createTSignature", "Create a typed testnet signature for payroll")
     const [, benefactor] = await hre.ethers.getSigners();
 
     const payrollContract = (await hre.ethers.getContractAt(
-      "PayrollContract", // Replace with the actual contract name if different
+      "PayrollContract",
       contract
     )) as IPayrollContract;
 

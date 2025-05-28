@@ -6,5 +6,9 @@
     "OpenZeppelin/openzeppelin-contracts-upgradeable",
     "smartcontractkit/chainlink-brownie-contracts"
   ],
-  "hardhat": ["@openzeppelin/contracts-upgradeable", "@chainlink/contracts"]
+  "hardhat": [
+    "@openzeppelin/contracts-upgradeable",
+    "@chainlink/contracts",
+    "-g @remix-project/remixd"
+  ]
 }
