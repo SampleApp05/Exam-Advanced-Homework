@@ -47,7 +47,7 @@ contract PayrollProxyFactoryTest is Test {
         vm.expectEmit(false, false, false, true);
         emit ProxyCreated(address(0));
 
-        address proxy = factory.createProxy(
+        address payable proxy = factory.createProxy(
             benefactor,
             departmentName,
             version,

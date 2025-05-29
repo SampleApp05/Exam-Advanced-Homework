@@ -24,6 +24,8 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
     error InsufficientFunds();
     error SalaryTransferFailed();
     error InvalidSignature();
+    error UnauthorizedAccess();
+    error WithadrawalFailed();
 
     bytes32 public constant CLAIM_SALARY_TYPEHASH =
         keccak256(
@@ -39,6 +41,12 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
 
     constructor() {
         _disableInitializers();
+    }
+
+    // MARK: - Modifiers
+    modifier onlyBenefactor() {
+        require(msg.sender == benefactor, UnauthorizedAccess());
+        _;
     }
 
     // MARK: - Private
@@ -158,4 +166,16 @@ contract PayrollContract is EIP712Upgradeable, IPayrollContract {
 
         emit PayrollInitialized(benefactor, departmentName, version);
     }
+
+    function withdrawFunds() external onlyBenefactor {
+        require(address(this).balance > 0, InsufficientFunds());
+
+        (bool success, ) = payable(benefactor).call{
+            value: address(this).balance
+        }("");
+
+        require(success, WithadrawalFailed());
+    }
+
+    receive() external payable onlyBenefactor {}
 }

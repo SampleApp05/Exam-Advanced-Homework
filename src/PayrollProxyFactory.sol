@@ -24,19 +24,20 @@ contract PayrollProxyFactory is AccessControl {
         string calldata departmentName,
         string calldata version,
         address priceFeedContract
-    ) external onlyRole(ADMIN_ROLE) returns (address proxy) {
+    ) external onlyRole(ADMIN_ROLE) returns (address payable) {
         uint256 proxyID = proxyCount++;
 
-        proxy = Clones.clone(implementation);
-        PayrollContract(proxy).initialize(
+        address proxyAddress = Clones.clone(implementation);
+
+        PayrollContract(payable(proxyAddress)).initialize(
             benefactor,
             departmentName,
             version,
             priceFeedContract
         );
-        proxies[proxyID] = proxy;
+        proxies[proxyID] = proxyAddress;
 
-        emit ProxyCreated(proxy);
-        return proxy;
+        emit ProxyCreated(proxyAddress);
+        return payable(proxyAddress);
     }
 }

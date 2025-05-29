@@ -26,3 +26,11 @@ NB! Run forge install if needed after cloning
 func_one => etherscan link
 func_two => etherscan link
 ....
+
+Addresses
+logic => 0xA97Fe928737e65915dD89b3067879EcF440022Ff
+factory => 0x3556c11ca0470fe7D84fE4d779D42e1935c0E49b
+
+scripts =>
+forge script script/DeployPayrollContract.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $PRIMARY_WALLET_PRIVATE_KEY --broadcast --verify --etherscan-api-key $ETHERSCAN_API_KEY
+forge script script/DeployPayrollFactory.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $PRIMARY_WALLET_PRIVATE_KEY --broadcast --verify --etherscan-api-key $ETHERSCAN_API_KEY

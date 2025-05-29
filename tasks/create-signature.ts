@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import { IPayrollContract } from "../typechain-types";
-import { writeToFile } from "../utils/writeToFile"; // will be used to write each signature to a file
+import { writeToFile } from "../utils/writeToFile";
+import { Signature } from "ethers";
 
 task("createTSignature", "Create a typed testnet signature for payroll")
   .addParam("employee", "The address allowed to withdraw")
@@ -15,17 +16,14 @@ task("createTSignature", "Create a typed testnet signature for payroll")
       contract
     )) as IPayrollContract;
 
-    let name = await payrollContract.departmentName();
-    let version = await payrollContract.version();
-
-    console.log("Department Name:", name);
-    console.log("Version:", version);
+    const name = await payrollContract.departmentName();
+    const version = await payrollContract.version();
 
     const domain = {
-      name: name,
-      version: version,
-      chainId: 11155111, // Sepolia
-      verifyingContract: payrollContract.target,
+      name,
+      version,
+      chainId: 31337, // hardhat //11155111 => Sepolia
+      verifyingContract: contract,
     };
 
     const types = {
@@ -38,20 +36,34 @@ task("createTSignature", "Create a typed testnet signature for payroll")
 
     const value = {
       employee,
-      amount: parseInt(amount),
+      amount: hre.ethers.parseEther(amount),
       period: parseInt(period),
     };
 
-    const signature = await benefactor.signTypedData(domain, types, value);
-    console.log("Signature:", signature);
+    let signature = await benefactor.signTypedData(domain, types, value);
+
+    const r = signature.slice(0, 66); // 0x + 64 chars
+    const s = "0x" + signature.slice(66, 130); // next 64 chars
+    const v = parseInt(signature.slice(130, 132), 16); // last 2 chars to int
+
+    // Fix v if it's 0 or 1
+    const adjustedV = v < 27 ? v + 27 : v;
+
+    console.log("r:", r);
+    console.log("s:", s);
+    console.log("v:", adjustedV);
+    console.log("Signature:", { v, r, s });
 
     await writeToFile(
       `signature-${period}-${employee}.json`,
       {
         employee,
-        amount: parseInt(amount),
+        amount: hre.ethers.parseEther(amount).toString(),
         period: parseInt(period),
-        signature,
+        signature: signature,
+        v: adjustedV,
+        r,
+        s,
       },
       "signatures"
     );

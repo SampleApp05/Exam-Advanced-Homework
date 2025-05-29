@@ -41,7 +41,7 @@ contract PayrollProxyTests is Test {
             address(mockPriceFeed)
         );
 
-        payrollContract = MockPayrollContract(proxy);
+        payrollContract = MockPayrollContract(payable(proxy));
 
         vm.deal(benefactor, 10_000 ether);
         vm.deal(proxy, 1000 ether);
